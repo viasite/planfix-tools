@@ -4,12 +4,21 @@
   "description": "Вспомогательные функции, которые используют Planfix API",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "version": "npm run changelog && git add CHANGELOG.md",
+    "postversion": "git push && npm run release",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 --config changelog-config.js",
+    "release": "conventional-github-releaser -p angular && npm publish && npm run deploy"
   },
-  "author": "",
+  "bin": {
+    "planfix-tools": "./src/index.js"
+  },
+  "author": "Stanislav Popov",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.19.2",
+    "commander": "^6.0.0",
+    "csv-parse": "^4.11.1",
     "xml2js": "^0.4.23"
   }
 }
