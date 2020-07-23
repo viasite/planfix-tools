@@ -1,4 +1,8 @@
-# 0.2.0 (2020-07-23)
+## [0.2.1](https://github.com/viasite/planfix-tools/compare/v0.2.0...v0.2.1) (2020-07-23)
+
+
+
+# [0.2.0](https://github.com/viasite/planfix-tools/compare/479a8dd...v0.2.0) (2020-07-23)
 
 
 ### Features
