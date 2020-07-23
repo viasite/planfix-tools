@@ -227,4 +227,12 @@ module.exports = {
 
     return result;
   },
+
+  getTaskUrl(generalId) {
+    return `https://${config.account}.planfix.ru/task/${generalId}`;
+  },
+
+  getContactUrl(generalId) {
+    return `https://${config.account}.planfix.ru/contact/${generalId}`;
+  }
 };
