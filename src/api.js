@@ -234,5 +234,5 @@ module.exports = {
 
   getContactUrl(generalId) {
     return `https://${config.account}.planfix.ru/contact/${generalId}`;
-  }
+  },
 };
