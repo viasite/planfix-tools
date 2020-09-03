@@ -9,6 +9,10 @@ const customFields = {
 };
 const csvSkipLines = 3; // надо убрать заголовок, иначе будет ошибка
 const fieldsMap = {
+  contactName: {
+    name: 'Имя',
+    num: 0,
+  },
   contactId: {
     name: 'Номер',
   },
@@ -41,29 +45,31 @@ function parseContacts(rows) {
   let position = 1;
 
   for (let row of rows) {
-    const contactId = parseInt(row[fieldsMap.contactId.num]);
-    let value = row[fieldsMap.value.num];
-    value = parseInt(value.replace(/ /g, ''));
-    if (!contactId || !value) continue;
-    // console.log(`${contactId}: ${value} `);
+    const contact = {
+      id: parseInt(row[fieldsMap.contactId.num]),
+      name: row[fieldsMap.contactName.num].trim(),
+      value: row[fieldsMap.value.num]
+    }
+    contact.value = parseInt(contact.value.replace(/ /g, ''));
+    if (!contact.id || !contact.value) continue;
 
-    let item = {
-      id: contactId,
-      value: value,
+    let item = {...contact, ...{
       position: position,
       totalPercent: 0,
-    };
+    }};
     items.push(item);
 
     position++;
   }
 
+  // считаем totalValue
   const total = items.length;
   let totalValue = 0;
   items.map((item) => {
     totalValue += item.value;
   });
 
+  // считаем position and totalPercent
   items = items.map((item) => {
     item.position = `${item.position} / ${total}`;
     item.totalPercent = Math.round((item.value / totalValue) * 100);
@@ -100,8 +106,13 @@ module.exports = async (opts) => {
     }
 
     const contacts = parseContacts(rows);
-    for (let contact of contacts) {
+
+    // save to json
+    fs.writeFileSync('data/contacts.json', JSON.stringify(contacts));
+
+    // send to planfix
+    /* for (let contact of contacts) {
       await updateContactFields(contact);
-    }
+    } */
   });
 };
