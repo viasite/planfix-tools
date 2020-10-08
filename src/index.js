@@ -36,4 +36,12 @@ program
     await commands.contacts_update(options);
   });
 
+program
+  .command('mqtt-send')
+  .description('send metrics to mqtt')
+  // .option('-- <path>', '')
+  .action(async (options) => {
+    await commands.mqtt_send(options);
+  });
+
 program.parse(process.argv);
