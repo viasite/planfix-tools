@@ -2,7 +2,7 @@ const mqtt = require('mqtt');
 const config = require('../.config-home');
 
 function mqttInit() {
-  console.log('Connecting to MQTT...');
+  // console.log('Connecting to MQTT...');
   const client = mqtt.connect(`mqtt://${config.mqtt.host}`, {
     port: config.mqtt.port,
     username: config.mqtt.user,
@@ -10,7 +10,7 @@ function mqttInit() {
   });
 
   client.on('connect', () => {
-    console.log('MQTT connected to ' + config.mqtt.host);
+    // console.log('MQTT connected to ' + config.mqtt.host);
   });
 
   client.on('offline', () => {

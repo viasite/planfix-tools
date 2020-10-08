@@ -51,5 +51,8 @@ async function send() {
 
 module.exports = async (opts) => {
   await send();
-  setInterval(send, intervalSecs * 1000);
+  setTimeout(() => {
+    process.exit(0);
+  }, 5000);
+  // setInterval(send, intervalSecs * 1000);
 };
