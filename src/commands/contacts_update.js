@@ -1,4 +1,5 @@
 const api = require('../api');
+const config = require('../../.config');
 const parse = require('csv-parse');
 const fs = require('fs');
 
@@ -39,7 +40,7 @@ async function updateContactFields(contact) {
   console.log(`${api.getContactUrl(contact.id)}: `, contact);
 }
 
-function parseContacts(rows) {
+async function parseContacts(rows) {
   let items = [];
 
   let position = 1;
@@ -52,6 +53,15 @@ function parseContacts(rows) {
     }
     contact.value = parseInt(contact.value.replace(/ /g, ''));
     if (!contact.id || !contact.value) continue;
+
+    // получение поля Сайт из контакта
+    const pfContact = await api.request('contact.get', {
+      contact: { general: contact.id },
+    });
+    const siteField = pfContact.contact.customData.customValue.find(f => f.field.id == config.siteFieldId);
+    if (siteField) {
+      contact.site = siteField.value;
+    }
 
     let item = {...contact, ...{
       position: position,
@@ -105,14 +115,14 @@ module.exports = async (opts) => {
       return;
     }
 
-    const contacts = parseContacts(rows);
+    const contacts = await parseContacts(rows);
 
     // save to json
     fs.writeFileSync('data/contacts.json', JSON.stringify(contacts));
 
     // send to planfix
-    /* for (let contact of contacts) {
+    for (let contact of contacts) {
       await updateContactFields(contact);
-    } */
+    }
   });
 };

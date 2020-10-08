@@ -3,5 +3,6 @@ module.exports = {
     account: '',
     api_key: '',
     user_login: '',
-    user_password: ''
+    user_password: '',
+    siteFieldId: 38, // id поля Сайт в контактах (у нас оно кастомное)
 }
