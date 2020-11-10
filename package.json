@@ -10,7 +10,7 @@
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
     "release": "conventional-github-releaser -p angular",
     "client-values": "npm start -- contacts-update --csv data/contragents-values.csv",
-    "price-update": "npm start -- price-update --csv data/price.csv",
+    "price-update": "npm start -- price-update",
     "deploy": "bash data/deploy.sh",
     "monthly": "npm run client-values && npm run deploy"
   },

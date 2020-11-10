@@ -42,95 +42,104 @@ async function processItems(parentKey, level = 0) {
   }
 
   for (let item of allItems) {
+    // Группа
     if (item.isGroup === '1') {
-      console.log(' '.repeat(level * 2) + item.name);
+      console.log(' ' + repeat(level * 2) + item.name);
       item.children = await processItems(item.key, level + 1);
     }
 
+    // Запись справочника
     if (item.isGroup === '0') {
-      const name = getItemField(item, customFields.name);
-      const price = getItemField(item, customFields.price);
-      const priceOld = getItemField(item, customFields.priceOld);
-      const isUpdated = !!priceOld;
-
-      // const public = getItemField(item, customFields.public);
-      // const used = getItemField(item, customFields.used);
-      // const checked = getItemField(item, customFields.checked);
-
-      // увеличиваем цену
-      let priceNew = Math.round(price * config.price.increaseRatio);
-
-      // округляем до config.price.round в большую сторону
-      if (priceNew % config.price.round > 0) {
-        priceNew = Math.ceil(priceNew / config.price.round) * config.price.round;
-      }
-
-      // вернуть как было
-      if(config.price.revert) {
-        if (priceOld && price != priceOld) {
-          if (!dryRun) {
-            const opts = {
-              handbook: { id: config.price.handbookId },
-              key: item.key,
-              parentKey: item.parentKey,
-              customData: {
-                customValue: [
-                  {
-                    id: customFields.priceOld,
-                    value: '',
-                  },
-                  {
-                    id: customFields.price,
-                    value: priceOld,
-                  },
-                ]
-              }
-            };
-            const result = await api.request('handbook.updateRecord', opts);
-
-            const prefix = ' '.repeat(level * 2) + '- ';
-            const url = api.getHandbookUrl(config.price.handbookId, item.key);
-            console.log(`${prefix}${price} -> ${priceOld} ${name} - ${url}`);
-
-            updatedCount++;
-          }
-        }
-      }
-
-      else if (!priceOld) {
-        // обновить услугу
-        if (!dryRun) {
-          const opts = {
-            handbook: { id: config.price.handbookId },
-            key: item.key,
-            parentKey: item.parentKey,
-            customData: {
-              customValue: [
-                {
-                  id: customFields.priceOld,
-                  value: price,
-                },
-                {
-                  id: customFields.price,
-                  value: priceNew,
-                },
-              ]
-            }
-          };
-          const result = await api.request('handbook.updateRecord', opts);
-
-          if (!isUpdated) {
-            const prefix = ' '.repeat(level * 2) + '- ';
-            const url = api.getHandbookUrl(config.price.handbookId, item.key);
-            console.log(`${prefix}${price} -> ${priceNew} ${name} - ${url}`);
-            updatedCount++;
-          }
-        }
-      }
+      processItem(item);
     }
   }
 
   return allItems;
+}
+
+// действия с записью справочника (не группы)
+async function processItem(item) {
+  const name = getItemField(item, customFields.name);
+  const price = getItemField(item, customFields.price);
+  const priceOld = getItemField(item, customFields.priceOld);
+  const isUpdated = !!priceOld;
+
+  // const public = getItemField(item, customFields.public);
+  // const used = getItemField(item, customFields.used);
+  // const checked = getItemField(item, customFields.checked);
+
+  // вернуть как было
+  if(config.price.revert) {
+    if (priceOld && price != priceOld) {
+      if (!dryRun) {
+        const opts = {
+          handbook: { id: config.price.handbookId },
+          key: item.key,
+          parentKey: item.parentKey,
+          customData: {
+            customValue: [
+              {
+                id: customFields.priceOld,
+                value: '',
+              },
+              {
+                id: customFields.price,
+                value: priceOld,
+              },
+            ]
+          }
+        };
+        const result = await api.request('handbook.updateRecord', opts);
+
+        const prefix = ' '.repeat(level * 2) + '- ';
+        const url = api.getHandbookUrl(config.price.handbookId, item.key);
+        console.log(`${prefix}${price} -> ${priceOld} ${name} - ${url}`);
+
+        updatedCount++;
+      }
+    }
+  }
+
+  // обновить цену, если не заполнена Цена до повышения
+  else if (!priceOld) {
+
+    // увеличиваем цену
+    let priceNew = Math.round(price * config.price.increaseRatio);
+
+    // округляем до config.price.round в большую сторону
+    if (priceNew % config.price.round > 0) {
+      priceNew = Math.ceil(priceNew / config.price.round) * config.price.round;
+    }
+
+    // обновить услугу
+    if (!dryRun) {
+      const opts = {
+        handbook: { id: config.price.handbookId },
+        key: item.key,
+        parentKey: item.parentKey,
+        customData: {
+          customValue: [
+            {
+              id: customFields.priceOld,
+              value: price,
+            },
+            {
+              id: customFields.price,
+              value: priceNew,
+            },
+          ]
+        }
+      };
+      const result = await api.request('handbook.updateRecord', opts);
+
+      if (!isUpdated) {
+        const prefix = ' '.repeat(level * 2) + '- ';
+        const url = api.getHandbookUrl(config.price.handbookId, item.key);
+        console.log(`${prefix}${price} -> ${priceNew} ${name} - ${url}`);
+        updatedCount++;
+      }
+    }
+  }
 }
 
 module.exports = async (opts) => {
