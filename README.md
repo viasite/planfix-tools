@@ -10,6 +10,9 @@
 ### contacts-update
 Подробности - https://tagilcity.planfix.ru/task/607985/?comment=7492257
 
+### price-update
+Подробности - https://tagilcity.planfix.ru/task/612808
+
 ## Для тех, кто не работает в Viasite
 Этот проект может быть полезен как пример использования API Планфикса на nodejs.
 

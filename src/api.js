@@ -235,4 +235,8 @@ module.exports = {
   getContactUrl(generalId) {
     return `https://${config.account}.planfix.ru/contact/${generalId}`;
   },
+
+  getHandbookUrl(handbookId, key) {
+    return `https://${config.account}.planfix.ru/?action=handbookdataview&handbook=${handbookId}&key=${key}`;
+  },
 };
