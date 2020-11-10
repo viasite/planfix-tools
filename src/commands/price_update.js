@@ -65,7 +65,39 @@ async function processItems(parentKey, level = 0) {
         priceNew = Math.ceil(priceNew / config.price.round) * config.price.round;
       }
 
-      if (!priceOld) {
+      // вернуть как было
+      if(config.price.revert) {
+        if (priceOld && price != priceOld) {
+          if (!dryRun) {
+            const opts = {
+              handbook: { id: config.price.handbookId },
+              key: item.key,
+              parentKey: item.parentKey,
+              customData: {
+                customValue: [
+                  {
+                    id: customFields.priceOld,
+                    value: '',
+                  },
+                  {
+                    id: customFields.price,
+                    value: priceOld,
+                  },
+                ]
+              }
+            };
+            const result = await api.request('handbook.updateRecord', opts);
+
+            const prefix = ' '.repeat(level * 2) + '- ';
+            const url = api.getHandbookUrl(config.price.handbookId, item.key);
+            console.log(`${prefix}${price} -> ${priceOld} ${name} - ${url}`);
+
+            updatedCount++;
+          }
+        }
+      }
+
+      else if (!priceOld) {
         // обновить услугу
         if (!dryRun) {
           const opts = {
@@ -86,14 +118,14 @@ async function processItems(parentKey, level = 0) {
             }
           };
           const result = await api.request('handbook.updateRecord', opts);
-        }
-      }
 
-      if (!isUpdated) {
-        const prefix = ' '.repeat(level * 2) + '- ';
-        const url = api.getHandbookUrl(config.price.handbookId, item.key);
-        console.log(`${prefix}${price} -> ${priceNew} ${name} - ${url}`);
-        updatedCount++;
+          if (!isUpdated) {
+            const prefix = ' '.repeat(level * 2) + '- ';
+            const url = api.getHandbookUrl(config.price.handbookId, item.key);
+            console.log(`${prefix}${price} -> ${priceNew} ${name} - ${url}`);
+            updatedCount++;
+          }
+        }
       }
     }
   }
