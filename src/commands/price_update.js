@@ -44,7 +44,7 @@ async function processItems(parentKey, level = 0) {
   for (let item of allItems) {
     // Группа
     if (item.isGroup === '1') {
-      console.log(' ' + repeat(level * 2) + item.name);
+      console.log(' '.repeat(level * 2) + item.name);
       item.children = await processItems(item.key, level + 1);
     }
 
@@ -64,12 +64,33 @@ async function processItem(item, level) {
   const priceOld = getItemField(item, customFields.priceOld);
   const isUpdated = !!priceOld;
 
-  // const public = getItemField(item, customFields.public);
   // const used = getItemField(item, customFields.used);
   // const checked = getItemField(item, customFields.checked);
 
-  // вернуть как было
-  if(config.price.revert) {
+  // обработка "Показывать клиентам"
+  if (config.price.updatePublic) {
+    const public = getItemField(item, customFields.public);
+    const nameShort = getItemField(item, customFields.nameShort);
+    const descrtiptionShort = getItemField(item, customFields.descrtiptionShort);
+  
+    // делаем публичными все услуги, которые уже обработаны для смет
+    const isMakePublic = public == '0' && (nameShort || descrtiptionShort);
+    if (isMakePublic) {
+      await updateItem(item, {
+        [customFields.public]: '1',
+      });
+  
+      const prefix = ' '.repeat(level * 2) + '- ';
+      const url = api.getHandbookUrl(config.price.handbookId, item.key);
+      console.log(`${prefix}make public: ${name} - ${url}`);
+      updatedCount++;
+    }
+
+    return; // цены при этом не обновляем
+  }
+
+  // вернуть цены как было (из поля "Цена до повышения")
+  if (config.price.revert) {
     if (priceOld && price != priceOld) {
       if (!dryRun) {
         await updateItem(item, {
@@ -84,10 +105,11 @@ async function processItem(item, level) {
         updatedCount++;
       }
     }
+    return; // цены при этом не обновляем
   }
 
   // обновить цену, если не заполнена Цена до повышения
-  else if (!priceOld) {
+  if (!priceOld) {
 
     // увеличиваем цену
     let priceNew = Math.round(price * config.price.increaseRatio);

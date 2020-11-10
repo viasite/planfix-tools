@@ -22,9 +22,15 @@ program
 program
   .command('price-update')
   .description('update price list')
-  .option('--csv <path>', '')
   .action(async (options) => {
     await commands.price_update(options);
+  });
+
+program
+  .command('price-generate')
+  .description('generate price list')
+  .action(async (options) => {
+    await commands.price_generate(options);
   });
 
 program
