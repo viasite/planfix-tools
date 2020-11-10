@@ -50,7 +50,7 @@ async function processItems(parentKey, level = 0) {
 
     // Запись справочника
     if (item.isGroup === '0') {
-      processItem(item);
+      await processItem(item, level);
     }
   }
 
@@ -58,7 +58,7 @@ async function processItems(parentKey, level = 0) {
 }
 
 // действия с записью справочника (не группы)
-async function processItem(item) {
+async function processItem(item, level) {
   const name = getItemField(item, customFields.name);
   const price = getItemField(item, customFields.price);
   const priceOld = getItemField(item, customFields.priceOld);
@@ -72,24 +72,10 @@ async function processItem(item) {
   if(config.price.revert) {
     if (priceOld && price != priceOld) {
       if (!dryRun) {
-        const opts = {
-          handbook: { id: config.price.handbookId },
-          key: item.key,
-          parentKey: item.parentKey,
-          customData: {
-            customValue: [
-              {
-                id: customFields.priceOld,
-                value: '',
-              },
-              {
-                id: customFields.price,
-                value: priceOld,
-              },
-            ]
-          }
-        };
-        const result = await api.request('handbook.updateRecord', opts);
+        await updateItem(item, {
+          [customFields.priceOld]: '',
+          [customFields.price]: priceOld
+        });
 
         const prefix = ' '.repeat(level * 2) + '- ';
         const url = api.getHandbookUrl(config.price.handbookId, item.key);
@@ -113,24 +99,10 @@ async function processItem(item) {
 
     // обновить услугу
     if (!dryRun) {
-      const opts = {
-        handbook: { id: config.price.handbookId },
-        key: item.key,
-        parentKey: item.parentKey,
-        customData: {
-          customValue: [
-            {
-              id: customFields.priceOld,
-              value: price,
-            },
-            {
-              id: customFields.price,
-              value: priceNew,
-            },
-          ]
-        }
-      };
-      const result = await api.request('handbook.updateRecord', opts);
+      await updateItem(item, {
+        [customFields.priceOld]: price,
+        [customFields.price]: priceNew
+      });
 
       if (!isUpdated) {
         const prefix = ' '.repeat(level * 2) + '- ';
@@ -140,6 +112,16 @@ async function processItem(item) {
       }
     }
   }
+}
+
+async function updateItem(item, fields) {
+  const opts = {
+    handbook: { id: config.price.handbookId },
+    key: item.key,
+    parentKey: item.parentKey,
+    customData: api.buildCustomData(fields)
+  };
+  return await api.request('handbook.updateRecord', opts);
 }
 
 module.exports = async (opts) => {

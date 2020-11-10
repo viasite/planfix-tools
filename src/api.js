@@ -228,6 +228,17 @@ module.exports = {
     return result;
   },
 
+  // упрощалка, принимает массив, где ключ - id поля, значение - значение поля,
+  // например: { [fieldIds.name]: name, [fieldIds.price]: price }
+  buildCustomData(fields) {
+    const list = [];
+    for (let id in fields) {
+      const value = fields[id];
+      list.push({id, value});
+    }
+    return { customData: list };
+  },
+
   getTaskUrl(generalId) {
     return `https://${config.account}.planfix.ru/task/${generalId}`;
   },
