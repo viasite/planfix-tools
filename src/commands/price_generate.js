@@ -13,6 +13,7 @@ const customFields = config.price.customFields;
 
 // значение поля по его id
 function getItemField(item, fieldId) {
+  if (!item.customData) return '';
   const fields = item.customData.customValue;
   const field = fields.find((f) => f.field.id == fieldId);
   const value = field.value;
@@ -68,6 +69,13 @@ async function processItems(parentKey, level = 0) {
     allItems = [...allItems, ...items];
     pageCurrent++;
   }
+
+  // sort by sku
+  allItems = allItems.sort((a, b) => {
+    const skuA = getItemField(a, customFields.sku);
+    const skuB = getItemField(b, customFields.sku);
+    return skuA > skuB ? 1 : (skuA < skuB ? -1 : 0);
+  });
 
   for (let item of allItems) {
     const outItem = {};

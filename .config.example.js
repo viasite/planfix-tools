@@ -17,9 +17,13 @@ module.exports = {
     handbookId: 123,
     customFields: {
       name: 1,
+      sku: 9,
       price: 2,
       priceOld: 3,
-    
+
+      nameShort: 7,
+      descrtiptionShort: 8,
+
       // flags
       checked: 4, // Проверено
       public: 5, // Показывать клиентам
