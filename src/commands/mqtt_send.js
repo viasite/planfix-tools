@@ -1,5 +1,5 @@
 const api = require('../apiNew');
-const mqtt = require('../mqtt');
+const mqttInit = require('../mqtt');
 const config = require('../../.config');
 
 const whenMap = {
@@ -11,6 +11,8 @@ const whenMap = {
 const WhenFieldId = 1720;
 const templateId = 98932;
 const intervalSecs = 600;
+
+let mqtt;
 
 async function getData() {
   const data = {
@@ -50,6 +52,7 @@ async function send() {
 }
 
 module.exports = async (opts) => {
+  mqtt = mqttInit();
   await send();
   setTimeout(() => {
     process.exit(0);
