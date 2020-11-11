@@ -9,7 +9,11 @@ module.exports = {
   price: {
     startParent: 0, // с какой записи начинать обход
     revert: false, // вернёт старую цену, если она не равна новой и не пустая
-    updatePublic: true, // обработка "Показывать клиентам"
+    updatePublic: false, // обработка "Показывать клиентам"
+
+    cacheTime: 86400,
+    forceUpdateParents: [], // id разделов, которые не кешируются
+    jsonPath: 'data/price.json',
 
     increaseRatio: 1100 / 1000, // стало / было
     round: 100, // округлять до 100 руб в большую сторону

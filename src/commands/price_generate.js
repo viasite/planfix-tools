@@ -25,7 +25,6 @@ async function apiRequestCached(method, opts, cacheTime=3600) {
   const cache = db.get('cache');
   const key = method + '_' + md5(JSON.stringify(opts));
   const cached = cache.find({ key }).value();
-  // console.log('cached: ', cached);
 
   const isValid = cached && cached.created + cacheTime * 1000 > Date.now();
   if (isValid) return cached.value;
@@ -58,7 +57,9 @@ async function processItems(parentKey, level = 0) {
       pageCurrent: pageCurrent,
     };
 
-    const result = await apiRequestCached('handbook.getRecords', requestOpts);
+    const cacheTime = config.price.forceUpdateParents.includes(parseInt(parentKey)) ? 0 : config.price.cacheTime;
+    const result = await apiRequestCached('handbook.getRecords', requestOpts, cacheTime);
+
     let items = result.records.record;
     if (!items) items = []; // вместо пустого результата result.records выдаёт пустую строку
     if (!Array.isArray(items)) items = [items]; // если 1 результат, то его отдают в виде объекта вместо массива
@@ -123,5 +124,6 @@ async function processItem(item, level) {
 module.exports = async (opts) => {
   const items = await processItems(config.price.startParent);
   console.log('items: ', items);
-  fs.writeFileSync('data/price.json', JSON.stringify(items, null, '  '));
+  fs.writeFileSync(config.price.jsonPath, JSON.stringify(items, null, '  '));
+  console.log(`Saved to ${config.price.jsonPath}`);
 };
