@@ -146,6 +146,24 @@ module.exports = {
     return true;
   },
 
+  async requestAll(method, opts) {
+    let tasks = [];
+    let res;
+    for (let pageNum = 1; pageNum < 20; pageNum++) {
+      opts.pageSize = 100;
+      opts.pageCurrent = pageNum;
+      res = await this.request(method, opts);
+      if (!res.tasks.task.length) return;
+      
+      tasks = [...tasks, ...res.tasks.task];
+      const total = res.tasks.$.totalCount;
+      if (total / opts.pageSize < pageNum) break;
+    }
+
+    res.tasks.task = tasks;
+    return res;
+  },
+
   async request(method, opts) {
     if (method != 'auth.login') {
       if (!(await this.ensureAuthenticated())) {

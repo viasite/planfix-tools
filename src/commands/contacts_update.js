@@ -58,6 +58,8 @@ async function parseContacts(rows) {
     const pfContact = await api.request('contact.get', {
       contact: { general: contact.id },
     });
+    console.log(contact.id);
+    console.log(pfContact.contact.name);
     const siteField = pfContact.contact.customData.customValue.find(f => f.field.id == config.siteFieldId);
     if (siteField) {
       contact.site = siteField.value;
