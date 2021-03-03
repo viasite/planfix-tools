@@ -136,6 +136,7 @@ async function processItem(item, level) {
   }
 }
 
+// отправляет данные в ПФ
 async function updateItem(item, fields) {
   const opts = {
     handbook: { id: config.price.handbookId },
@@ -146,6 +147,7 @@ async function updateItem(item, fields) {
   return await api.request('handbook.updateRecord', opts);
 }
 
+// главная функция
 module.exports = async (opts) => {
   const items = await processItems(config.price.startParent);
   console.log('updatedCount: ', updatedCount);

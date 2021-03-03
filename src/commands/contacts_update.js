@@ -1,14 +1,18 @@
 const api = require('../api');
 const config = require('../../.config');
-const parse = require('csv-parse');
+const csvParse = require('csv-parse');
 const fs = require('fs');
 
+// id полей Планфикса, из шаблона компании - https://tagilcity.planfix.ru/contact/4504
 const customFields = {
-  value: 105,
-  position: 107,
-  totalPercent: 109,
+  value: 105, // Поступления за последние 200 дней
+  position: 107, // Рейтинг
+  totalPercent: 109, // Сколько процентов от общего приносит
 };
-const csvSkipLines = 3; // надо убрать заголовок, иначе будет ошибка
+
+const csvSkipLines = 3; // надо убрать заголовок в csv, иначе будет ошибка
+
+// колонки в csv, если указан номер (столбца), используется он, иначе вычисляется по названию колонки
 const fieldsMap = {
   contactName: {
     name: 'Имя',
@@ -22,24 +26,7 @@ const fieldsMap = {
   },
 };
 
-async function updateContactFields(contact) {
-  const requestFields = {};
-  for (let name in customFields) {
-    requestFields[name] = {
-      id: customFields[name],
-      value: contact[name],
-    };
-  }
-
-  const result = await api.request('contact.updateCustomData', {
-    contact: {
-      general: contact.id,
-      customData: requestFields,
-    },
-  });
-  console.log(`${api.getContactUrl(contact.id)}: `, contact);
-}
-
+// принимает ряды из csv, возвращает контакты
 async function parseContacts(rows) {
   let items = [];
 
@@ -92,12 +79,32 @@ async function parseContacts(rows) {
   return items;
 }
 
+// отправляет в ПФ новые значения полей контакта
+async function updateContactFields(contact) {
+  const requestFields = {};
+  for (let name in customFields) {
+    requestFields[name] = {
+      id: customFields[name],
+      value: contact[name],
+    };
+  }
+
+  const result = await api.request('contact.updateCustomData', {
+    contact: {
+      general: contact.id,
+      customData: requestFields,
+    },
+  });
+  console.log(`${api.getContactUrl(contact.id)}: `, contact);
+}
+
+// главная функция
 module.exports = async (opts) => {
   // const result = await api.request('contact.getList', { target: 'company' });
 
-  const raw = fs.readFileSync(opts.csv, 'utf-8');
-  const lines = raw.split('\r\n').slice(csvSkipLines);
-  parse(lines.join('\r\n'), { delimiter: ';' }, async (err, rows) => {
+  const raw = fs.readFileSync(opts.csv, 'utf-8'); // передаётся через ком. строку: --csv data/contragents-values.csv
+  const lines = raw.split('\r\n').slice(csvSkipLines); // убирает шапку
+  csvParse(lines.join('\r\n'), { delimiter: ';' }, async (err, rows) => {
     // console.log('rows: ', rows);
     if (err) {
       console.error('CSV не распозналась:');
@@ -110,6 +117,7 @@ module.exports = async (opts) => {
     fieldsMap.contactId.num = h.findIndex((f) => f == fieldsMap.contactId.name);
     fieldsMap.value.num = h.findIndex((f) => f == fieldsMap.value.name);
 
+    // не найдены обязательные поля из fieldsMap
     if (!fieldsMap.contactId.num || !fieldsMap.value.num) {
       console.error(
         `Таблица не содержит поля: ${fieldsMap.contactId.name}, ${fieldsMap.value.name}`
@@ -119,7 +127,7 @@ module.exports = async (opts) => {
 
     const contacts = await parseContacts(rows);
 
-    // save to json
+    // файл нужен для таблицы сайтов, чтобы в нём выводились данные соответствующих компаний
     fs.writeFileSync('data/contacts.json', JSON.stringify(contacts));
 
     // send to planfix
