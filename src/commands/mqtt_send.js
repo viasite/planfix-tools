@@ -19,7 +19,7 @@ const whenMap = {
 };
 
 const WhenFieldId = 1720;
-const templateId = 98932; // шаблон Trello
+const templateId = 98932; // шаблон Trello, не используется
 const intervalSecs = 600;
 
 let mqtt;
@@ -46,13 +46,14 @@ async function getData() {
     };
   };
 
-  const defaultFilter = {
+  const defaultFilter = {};
+  /* const defaultFilter = {
     filter : {
       type: 51,
       operator: 'equal',
       value: templateId,
     }
-  };
+  }; */
 
   let res;
 
