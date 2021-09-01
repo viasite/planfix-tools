@@ -2,7 +2,7 @@ const api = require('../api');
 const config = require('../../.config');
 
 const customFields = config.price.customFields;
-const dryRun = false;
+const dryRun = config.price.dryRun;
 
 let updatedCount = 0;
 
@@ -97,13 +97,13 @@ async function processItem(item, level) {
           [customFields.priceOld]: '',
           [customFields.price]: priceOld
         });
-
-        const prefix = ' '.repeat(level * 2) + '- ';
-        const url = api.getHandbookUrl(config.price.handbookId, item.key);
-        console.log(`${prefix}${price} -> ${priceOld} ${name} - ${url}`);
-
-        updatedCount++;
       }
+
+      const prefix = ' '.repeat(level * 2) + '- ';
+      const url = api.getHandbookUrl(config.price.handbookId, item.key);
+      console.log(`${prefix}${price} -> ${priceOld} ${name} - ${url}`);
+
+      updatedCount++;
     }
     return; // цены при этом не обновляем
   }
@@ -125,13 +125,13 @@ async function processItem(item, level) {
         [customFields.priceOld]: price,
         [customFields.price]: priceNew
       });
+    }
 
-      if (!isUpdated) {
-        const prefix = ' '.repeat(level * 2) + '- ';
-        const url = api.getHandbookUrl(config.price.handbookId, item.key);
-        console.log(`${prefix}${price} -> ${priceNew} ${name} - ${url}`);
-        updatedCount++;
-      }
+    if (!isUpdated) {
+      const prefix = ' '.repeat(level * 2) + '- ';
+      const url = api.getHandbookUrl(config.price.handbookId, item.key);
+      console.log(`${prefix}${price} -> ${priceNew} ${name} - ${url}`);
+      updatedCount++;
     }
   }
 }
@@ -151,5 +151,5 @@ async function updateItem(item, fields) {
 module.exports = async (opts) => {
   const items = await processItems(config.price.startParent);
   console.log('updatedCount: ', updatedCount);
-  console.log('items: ', items);
+  // console.log('items: ', items);
 };

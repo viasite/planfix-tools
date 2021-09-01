@@ -11,7 +11,7 @@
 Подробности - https://tagilcity.planfix.ru/task/607985/?comment=7492257
 
 ### price-update
-Подробности - https://tagilcity.planfix.ru/task/612808
+Подробности - https://tagilcity.planfix.ru/?action=handbookdataview&handbook=144&key=1256
 
 Умеет обходит весь справочник или его часть, и обновлять каждую запись.
 
