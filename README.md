@@ -10,13 +10,14 @@
 ### contacts-update
 Подробности - https://tagilcity.planfix.ru/task/607985/?comment=7492257
 
+### price-generate
+Создеёт price.json
+Кеширует запросы к Планфиксу в lowdb.
+
 ### price-update
 Подробности - https://tagilcity.planfix.ru/?action=handbookdataview&handbook=144&key=1256
 
-Умеет обходит весь справочник или его часть, и обновлять каждую запись.
-
-### price-generate
-Кеширует запросы к Планфиксу в lowdb.
+Умеет обходит весь справочник или его часть, и обновлять цену в каждой записи.
 
 ## Для тех, кто не работает в Viasite
 Этот проект может быть полезен как пример использования API Планфикса на nodejs.

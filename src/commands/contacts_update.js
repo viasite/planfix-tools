@@ -39,7 +39,7 @@ const fieldsMap = {
 };
 
 // принимает ряды из csv, возвращает контакты
-async function parseContacts(rows) {
+async function parseContacts(rows, reset = false) {
   let items = [];
 
   let position = 1;
@@ -58,6 +58,15 @@ async function parseContacts(rows) {
     if (contact.value100) contact.value100 = parseInt(contact.value100.replace(/ /g, ''));
     if (contact.value365) contact.value365 = parseInt(contact.value365.replace(/ /g, ''));
     if (!contact.id || !(contact.value200 || contact.value30 || contact.value100 || contact.value365)) continue;
+
+    // сбрасываем цены, если указан --reset
+    // это нужно, потому что если, например, за последние 30 дней не было поступлений, то останется цифра с прошлого запуска
+    if (reset) {
+      contact.value30 = 0;
+      contact.value100 = 0;
+      contact.value200 = 0;
+      contact.value365 = 0;
+    }
 
     // получение поля Сайт из контакта
     const pfContact = await api.request('contact.get', {
@@ -156,15 +165,14 @@ module.exports = async (opts) => {
       return;
     }
 
-    const contacts = await parseContacts(rows);
-    
-        // файл нужен для таблицы сайтов, чтобы в нём выводились данные соответствующих компаний
-        fs.writeFileSync('data/contacts.json', JSON.stringify(contacts));
+    const contacts = await parseContacts(rows, opts.reset);
 
-        // send to planfix
-        for (let contact of contacts) {
-          await updateContactFields(contact);
-        }
-        
+    // файл нужен для таблицы сайтов, чтобы в нём выводились данные соответствующих компаний
+    fs.writeFileSync('data/contacts.json', JSON.stringify(contacts));
+
+    // send to planfix
+    for (let contact of contacts) {
+      await updateContactFields(contact);
+    }
   });
 };

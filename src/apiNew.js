@@ -147,13 +147,15 @@ module.exports = {
   },
 
   async requestAll(method, opts) {
+    if (method.match(/^handbook/)) return await this.requestAllHandbook(method, opts);
+
     let tasks = [];
     let res;
     for (let pageNum = 1; pageNum < 20; pageNum++) {
       opts.pageSize = 100;
       opts.pageCurrent = pageNum;
       res = await this.request(method, opts);
-      if (!res.tasks.task.length) return;
+      if (!res.tasks.task.length) return tasks;
       
       tasks = [...tasks, ...res.tasks.task];
       const total = res.tasks.$.totalCount;
@@ -161,6 +163,24 @@ module.exports = {
     }
 
     res.tasks.task = tasks;
+    return res;
+  },
+
+  async requestAllHandbook(method, opts) {
+    let items = [];
+    let res;
+    for (let pageNum = 1; pageNum < 20; pageNum++) {
+      opts.pageSize = 100;
+      opts.pageCurrent = pageNum;
+      res = await this.request(method, opts);
+      if (!res.records || !res.records.record.length) break;
+      
+      items = [...items, ...res.records.record];
+      // const total = res.items.$.totalCount;
+      // if (total / opts.pageSize < pageNum) break;
+    }
+
+    res.records =  { record: items };
     return res;
   },
 
@@ -253,5 +273,9 @@ module.exports = {
 
   getContactUrl(generalId) {
     return `https://${this.config.account}.planfix.ru/contact/${generalId}`;
+  },
+
+  getHandbookUrl(handbookId, parentKey) {
+    return `https://${this.config.account}.planfix.ru/?action=handbookdataview&handbook=${handbookId}&key=${parentKey}`;
   },
 };

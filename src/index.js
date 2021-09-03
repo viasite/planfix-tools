@@ -15,6 +15,7 @@ program
   .command('contacts-update')
   .description('update contacts from csv')
   .option('--csv <path>', '')
+  .option('--reset', 'Reset all prices')
   .action(async (options) => {
     await commands.contacts_update(options);
   });
@@ -39,6 +40,14 @@ program
   // .option('-- <path>', '')
   .action(async (options) => {
     await commands.mqtt_send(options);
+  });
+
+program
+  .command('get-password')
+  .option('--domain <domain>', '')
+  .description('get admin password for site')
+  .action(async (options) => {
+    await commands.get_password(options);
   });
 
 program.parse(process.argv);

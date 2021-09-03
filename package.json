@@ -9,11 +9,11 @@
     "postversion": "git push && npm run release",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
     "release": "conventional-github-releaser -p angular",
-    "client-values": "npm start -- contacts-update --csv data/contragents-values.csv",
+    "client-values": "npm start -- contacts-update --csv data/contragents-365.csv --reset && npm start -- contacts-update --csv data/contragents-30.csv && npm start -- contacts-update --csv data/contragents-100.csv && npm start -- contacts-update --csv data/contragents-200.csv && npm start -- contacts-update --csv data/contragents-365.csv",
     "price-update": "npm start -- price-update",
     "price-generate": "npm start -- price-generate",
     "deploy": "bash data/deploy.sh",
-    "monthly": "npm run client-values && npm run deploy"
+    "monthly": "npm run client-values && npm run price-generate && npm run deploy"
   },
   "bin": {
     "planfix-tools": "./src/index.js"
