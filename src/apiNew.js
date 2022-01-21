@@ -155,7 +155,14 @@ module.exports = {
       opts.pageSize = 100;
       opts.pageCurrent = pageNum;
       res = await this.request(method, opts);
-      if (!res.tasks.task.length) return tasks;
+
+      // если приходит 1 результат, то тут объект вместо массива
+      if (!res.tasks.task.length) {
+        if (res.tasks.task) {
+          tasks.push(res.tasks.task);
+        }
+        break;
+      }
       
       tasks = [...tasks, ...res.tasks.task];
       const total = res.tasks.$.totalCount;

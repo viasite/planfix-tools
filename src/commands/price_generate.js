@@ -5,9 +5,7 @@ const md5 = require('md5');
 const api = require('../api');
 const config = require('../../.config');
 
-const adapter = new FileSync('data/db.json');
-const db = lowdb(adapter);
-db.defaults({ cache: [] }).write();
+let db;
 
 const customFields = config.price.customFields;
 
@@ -122,6 +120,10 @@ async function processItem(item, level) {
 }
 
 module.exports = async (opts) => {
+  const adapter = new FileSync('data/db.json');
+  db = lowdb(adapter);
+  db.defaults({ cache: [] }).write();
+
   const items = await processItems(config.price.startParent);
   console.log('items: ', items);
   fs.writeFileSync(config.price.jsonPath, JSON.stringify(items, null, '  '));
